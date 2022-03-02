@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart' hide Headers;
-import 'package:netflix_clone/model/movie/now_palying_model.dart';
+import 'package:netflix_clone/models/movie/now_palying_model.dart';
 import 'package:netflix_clone/util/constant.dart';
 
 // import 'package:dio_flutter_transformer/dio_flutter_transformer.dart';

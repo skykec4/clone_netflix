@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:netflix_clone/splash/splash.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 
-import 'ui/app_main.dart';
 import 'util/constant.dart';
 
 void main() async {

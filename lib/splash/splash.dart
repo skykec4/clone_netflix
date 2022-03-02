@@ -24,7 +24,9 @@ class _SplashState extends State<Splash> {
     //로그인 체크 확인후 어디로 보낼지 분기
 
     await Future.delayed(const Duration(milliseconds: 500), () {
-      Get.offAll(const AppMain());
+      Get.offAll(const AppMain(),
+          transition: Transition.fadeIn,
+          duration: const Duration(milliseconds: 1000));
     });
   }
 

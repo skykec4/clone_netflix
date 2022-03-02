@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:netflix_clone/get_controller/api_controller.dart';
 
-import '../../model/movie/now_palying_model.dart';
+import '../../models/movie/now_palying_model.dart';
 import '../../util/constant.dart';
 import 'package:dio/dio.dart';
 
