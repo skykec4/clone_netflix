@@ -8,6 +8,7 @@ class Constant {
   static const String apiBaseUrl = 'https://api.themoviedb.org/3/';
   static const String apiKey = 'ce16f7da30a47ba16d9f038d895318bd';
   static const String language = 'ko-KR';
+  static const String imageBaseUrl = 'https://image.tmdb.org/t/p/w500/';
 
   //color
   static const int _colorMainInt = 0xff000000;

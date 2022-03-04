@@ -7,7 +7,6 @@ import 'package:netflix_clone/ui/settings/settings_home.dart';
 import 'package:netflix_clone/ui/tv/tv_home.dart';
 
 import '../get_controller/api_controller.dart';
-import '../util/constant.dart';
 
 class AppMain extends StatefulWidget {
   const AppMain({Key? key}) : super(key: key);
@@ -33,43 +32,65 @@ class _AppMainState extends State<AppMain> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 
+  Future<bool> _onWillPop() async {
 
+    if (c.homeIndex != 0) {
+      c.setHomeIndex(0);
+      c.menuController.reverse();
+      return false;
+    }
+
+    return !await navigatorKey.currentState!.maybePop();
+  }
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      // onWillPop: () async {
-      //   return !await navigatorKey.currentState!.maybePop();
-      // },
-      onWillPop: _isExitDesired,
+      onWillPop: _onWillPop,
+      // onWillPop: _isExitDesired,
       child: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              onPressed: _onExitPressed,
-              icon: const Icon(Icons.chevron_left),
+          // appBar: AppBar(
+          //   // leading: _back(),
+          //   title: Image.asset('assets/images/logo.png',height: 50,color: Colors.red,),
+          //   actions: [
+          //     IconButton(
+          //       onPressed: () async {
+          //         print('aa " ${navigatorKey.currentState?.canPop()}');
+          //
+          //         !await navigatorKey.currentState!.maybePop();
+          //       },
+          //       // onPressed: _onExitPressed,
+          //       icon: const Icon(Icons.chevron_left),
+          //     )
+          //   ],
+          // ),
+          bottomNavigationBar: Theme(
+            data: Theme.of(context).copyWith(
+              // sets the background color of the `BottomNavigationBar`
+              canvasColor: Colors.black,
+              // sets the active color of the `BottomNavigationBar` if `Brightness` is light)
             ),
-            title: const Text('Bulb Setup'),
+            child: Obx(() => BottomNavigationBar(
+                  // selectedItemColor: Constant.colorMain,
+                  // unselectedItemColor: Colors.grey.shade400,
+                  currentIndex: c.mainMenuIndex,
+                  onTap: (value) {
+                    if (!initCheck[value]) {
+                      setState(() {
+                        initCheck[value] = true;
+                      });
+                    }
+                    c.setMainMenuIndex(value);
+                  },
+                  items: const [
+                    BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
+                    BottomNavigationBarItem(icon: Icon(Icons.tv), label: 'TV'),
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.save_alt), label: 'save'),
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.settings), label: 'settings'),
+                  ],
+                )),
           ),
-          bottomNavigationBar: Obx(() => BottomNavigationBar(
-                selectedItemColor: Constant.colorMain,
-                unselectedItemColor: Colors.grey.shade400,
-                currentIndex: c.mainMenuIndex,
-                onTap: (value) {
-                  if (!initCheck[value]) {
-                    setState(() {
-                      initCheck[value] = true;
-                    });
-                  }
-                  c.setMainMenuIndex(value);
-                },
-                items: const [
-                  BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
-                  BottomNavigationBarItem(icon: Icon(Icons.tv), label: 'tv'),
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.save_alt), label: 'save'),
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.settings), label: 'settings'),
-                ],
-              )),
           body: Obx(() => IndexedStack(
                 index: c.mainMenuIndex,
                 children: [
@@ -113,28 +134,28 @@ class _AppMainState extends State<AppMain> {
 
   Future<bool> _isExitDesired() async {
     return await showDialog<bool>(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Are you sure?'),
-            content: const Text(
-                'If you exit device setup, your progress will be lost.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: const Text('Leave'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-                child: const Text('Stay'),
-              ),
-            ],
-          );
-        }) ??
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Are you sure?'),
+                content: const Text(
+                    'If you exit device setup, your progress will be lost.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    child: const Text('Leave'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                    },
+                    child: const Text('Stay'),
+                  ),
+                ],
+              );
+            }) ??
         false;
   }
 

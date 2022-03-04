@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:netflix_clone/util/constant.dart';
 
-import '../ui/app_main.dart';
+import '../ui/profile/index_profile.dart';
 
 class Splash extends StatefulWidget {
   const Splash({Key? key}) : super(key: key);
@@ -24,7 +24,7 @@ class _SplashState extends State<Splash> {
     //로그인 체크 확인후 어디로 보낼지 분기
 
     await Future.delayed(const Duration(milliseconds: 500), () {
-      Get.offAll(const AppMain(),
+      Get.offAll(IndexProfile(),
           transition: Transition.fadeIn,
           duration: const Duration(milliseconds: 1000));
     });
@@ -37,8 +37,9 @@ class _SplashState extends State<Splash> {
         body: Container(
             alignment: Alignment.center,
             child: Image.asset(
-              'assets/images/logo.png',
-              width: 0.3.sw,
+              'assets/images/logo2.png',
+              color: Colors.red,
+              width: 0.55.sw,
             )));
   }
 }

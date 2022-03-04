@@ -33,8 +33,17 @@ class MyApp extends StatelessWidget {
                   background: Container(color: const Color(0xFFF5F5F5))),
               title: 'netflix clone',
               theme: ThemeData(
-                primarySwatch: Constant.colorMainMaterialColor,
-              ),
+                  primarySwatch: Constant.colorMainMaterialColor,
+                  primaryColor: Constant.colorMain,
+                  scaffoldBackgroundColor: Colors.black,
+                  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                    backgroundColor: Colors.black,
+                    selectedItemColor: Colors.white,
+                    unselectedItemColor: Colors.grey.shade400
+                  ),
+                  textTheme: const TextTheme(
+                      bodyText1: TextStyle(color: Colors.white),
+                      bodyText2: TextStyle(color: Colors.white))),
               home: const Splash(),
               // home: const HomePage(title: 'FlutterScreenUtil Demo'),
             ));

@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart' hide Headers;
+import 'package:netflix_clone/models/movie/details_model.dart';
 import 'package:netflix_clone/models/movie/now_palying_model.dart';
+import 'package:netflix_clone/models/movie/videos_model.dart';
 import 'package:netflix_clone/util/constant.dart';
 
 // import 'package:dio_flutter_transformer/dio_flutter_transformer.dart';
@@ -20,7 +22,7 @@ abstract class ApiService {
     return ApiService(dio);
   }
 
-  //현재 상영작
+  //now playing
   @GET("movie/now_playing")
   @Headers(<String, dynamic>{"content-type": "application/json"})
   @FormUrlEncoded()
@@ -28,5 +30,25 @@ abstract class ApiService {
       @Query("api_key") String apiKey,
       @Query("language") String language,
       @Query("page") String page,
+      );
+
+  //get details
+  @GET("movie/{movieId}")
+  @Headers(<String, dynamic>{"content-type": "application/json"})
+  @FormUrlEncoded()
+  Future<DetailsModel> getDetails(
+      @Path("movieId") String movieId,
+      @Query("api_key") String apiKey,
+      @Query("language") String language,
+      );
+
+  //get videos
+  @GET("movie/{movieId}/videos")
+  @Headers(<String, dynamic>{"content-type": "application/json"})
+  @FormUrlEncoded()
+  Future<VideosModel> getVideos(
+      @Path("movieId") String movieId,
+      @Query("api_key") String apiKey,
+      @Query("language") String language,
       );
 }
