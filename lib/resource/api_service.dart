@@ -81,4 +81,17 @@ abstract class ApiService {
       @Query("api_key") String apiKey,
       @Query("language") String language,
       );
+
+  //get similar
+  @GET("movie/{movieId}/similar")
+  @Headers(<String, dynamic>{"content-type": "application/json"})
+  @FormUrlEncoded()
+  Future<NowPlayingModel> getSimilar(
+      @Path("movieId") String movieId,
+      @Query("api_key") String apiKey,
+      @Query("language") String language,
+      @Query("page") String page,
+      );
+
+
 }
