@@ -32,6 +32,36 @@ abstract class ApiService {
       @Query("page") String page,
       );
 
+  //popular
+  @GET("movie/popular")
+  @Headers(<String, dynamic>{"content-type": "application/json"})
+  @FormUrlEncoded()
+  Future<NowPlayingModel> getPopular(
+      @Query("api_key") String apiKey,
+      @Query("language") String language,
+      @Query("page") String page,
+      );
+
+  //top_rated
+  @GET("movie/top_rated")
+  @Headers(<String, dynamic>{"content-type": "application/json"})
+  @FormUrlEncoded()
+  Future<NowPlayingModel> getTopRated(
+      @Query("api_key") String apiKey,
+      @Query("language") String language,
+      @Query("page") String page,
+      );
+
+  //upcoming
+  @GET("movie/upcoming")
+  @Headers(<String, dynamic>{"content-type": "application/json"})
+  @FormUrlEncoded()
+  Future<NowPlayingModel> getUpcoming(
+      @Query("api_key") String apiKey,
+      @Query("language") String language,
+      @Query("page") String page,
+      );
+
   //get details
   @GET("movie/{movieId}")
   @Headers(<String, dynamic>{"content-type": "application/json"})

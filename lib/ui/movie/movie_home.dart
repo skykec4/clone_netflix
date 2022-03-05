@@ -27,10 +27,12 @@ class MovieHome extends StatefulWidget {
 
 class _MovieHomeState extends State<MovieHome>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
-
   late ApiController apiController;
   MenuController menuController = Get.find<MenuController>();
   NowPlayingModel? nowPlaying;
+  NowPlayingModel? popular;
+  NowPlayingModel? topRated;
+  NowPlayingModel? upcoming;
 
   late Animation<double> animation;
 
@@ -45,30 +47,48 @@ class _MovieHomeState extends State<MovieHome>
   }
 
   void fetchNowPlaying() async {
-    setState(() {
-      nowPlaying = null;
-    });
-
     try {
-      var _nowPlaying = await apiController.api
+      nowPlaying = await apiController.api
           .getNowPlaying(Constant.apiKey, Constant.language, "1");
-      nowPlaying = _nowPlaying;
-      print("nowPlaying $_nowPlaying");
-      // } catch (e) {
     } on DioError catch (e) {
-      print('error data1 ${e.response?.data}');
-      print('error data1 ${e.response?.data.runtimeType}');
-      print('error data2 ${e.response}');
-      print('error data2 ${e.response.runtimeType}');
-
+      print('error fetch ${e.response?.data}');
       nowPlaying = NowPlayingModel.fromJson(e.response?.data);
+    } finally {
+      setState(() {});
+    }
+  }
 
-      print("nowPlaying : $nowPlaying");
-      // print('eeeee : ${e.response}');
-      // print('eeeee statusCode: ${e.response?.statusCode}');
-      // print("e.response?.data : ${e.response?.data}");
-      // print("e.response?.headers :: ${e.response?.headers}");
-      // print("e.response?.requestOptions : ${e.response?.requestOptions}");
+  void fetchPopular() async {
+    try {
+      popular = await apiController.api
+          .getPopular(Constant.apiKey, Constant.language, "1");
+    } on DioError catch (e) {
+      print('error fetch ${e.response?.data}');
+      popular = NowPlayingModel.fromJson(e.response?.data);
+    } finally {
+      setState(() {});
+    }
+  }
+
+  void fetchTopRated() async {
+    try {
+      topRated = await apiController.api
+          .getTopRated(Constant.apiKey, Constant.language, "1");
+    } on DioError catch (e) {
+      print('error fetch ${e.response?.data}');
+      topRated = NowPlayingModel.fromJson(e.response?.data);
+    } finally {
+      setState(() {});
+    }
+  }
+
+  void fetchUpcoming() async {
+    try {
+      upcoming = await apiController.api
+          .getUpcoming(Constant.apiKey, Constant.language, "1");
+    } on DioError catch (e) {
+      print('error fetch ${e.response?.data}');
+      upcoming = NowPlayingModel.fromJson(e.response?.data);
     } finally {
       setState(() {});
     }
@@ -94,6 +114,9 @@ class _MovieHomeState extends State<MovieHome>
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       fetchNowPlaying();
+      fetchPopular();
+      fetchTopRated();
+      fetchUpcoming();
     });
   }
 
@@ -223,14 +246,14 @@ class _MovieHomeState extends State<MovieHome>
         ));
   }
 
-  Widget _nowPlaying() {
+  Widget _movieList(NowPlayingModel? movieList,String title) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
             margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            child: Text('현재 상영작')),
-        Container(width: 1.sw, height: 150, child: _movieCard(nowPlaying)
+            child: Text(title)),
+        Container(width: 1.sw, height: 150, child: _movieCard(movieList)
 
             // Container(
             //         alignment: Alignment.center,
@@ -244,7 +267,8 @@ class _MovieHomeState extends State<MovieHome>
 
   Widget _bottom(Results data) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: EdgeInsets.only(top: 10, left: 10, right: 10),
+      width: 1.sw,
       height: 230,
       decoration: BoxDecoration(
           color: Color(0xff262626),
@@ -258,7 +282,7 @@ class _MovieHomeState extends State<MovieHome>
                 direction: Axis.horizontal,
                 children: [
                   Container(
-                    width: 0.22.sw,
+                    width: 0.2.sw,
                     height: 120,
                     child: ClipRRect(
                         borderRadius: BorderRadius.circular(4.0),
@@ -270,7 +294,7 @@ class _MovieHomeState extends State<MovieHome>
                     width: 10,
                   ),
                   Container(
-                    width: 0.65.sw,
+                    width: 0.6.sw,
                     height: 120,
                     child: Flex(
                       direction: Axis.vertical,
@@ -386,33 +410,37 @@ class _MovieHomeState extends State<MovieHome>
                   menuController.setHomeIndex(4);
                   setMovieId(data.id!);
                 },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          size: 16.sp,
-                          color: Colors.white,
-                        ),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text(
-                          '상세정보',
-                          style: TextStyle(fontSize: 12.sp),
-                        )
-                      ],
-                    ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.white,
-                      size: 14.sp,
-                    )
-                  ],
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  height: 30,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 16.sp,
+                            color: Colors.white,
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            '상세정보',
+                            style: TextStyle(fontSize: 12.sp),
+                          )
+                        ],
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.white,
+                        size: 14.sp,
+                      )
+                    ],
+                  ),
                 ),
               )
             ],
@@ -510,10 +538,10 @@ class _MovieHomeState extends State<MovieHome>
               child: Column(
                 children: [
                   _top(),
-                  _nowPlaying(),
-                  _nowPlaying(),
-                  _nowPlaying(),
-                  _nowPlaying(),
+                  _movieList(nowPlaying,'현재상영작'),
+                  _movieList(upcoming,'개봉예정'),
+                  _movieList(popular,'인기영화'),
+                  _movieList(topRated,'TopRate'),
                 ],
               ),
             )
@@ -522,7 +550,6 @@ class _MovieHomeState extends State<MovieHome>
   }
 
   Widget sub(int homeIndex) {
-
     return AnimatedSwitcher(
         duration: Duration(milliseconds: 200),
         transitionBuilder: (Widget child, Animation<double> animation) {
@@ -576,10 +603,12 @@ class _MovieHomeState extends State<MovieHome>
               SliverAppBar(
                 automaticallyImplyLeading: false,
                 pinned: true,
-                snap: menuController.homeIndex < 4  ? true : false,
+                snap: menuController.homeIndex < 4 ? true : false,
                 floating: menuController.homeIndex < 4 ? true : false,
-                backgroundColor: menuController.homeIndex < 4 ? Colors.black.withOpacity(.5) :Colors.black,
-                expandedHeight: menuController.homeIndex < 4 ? 100: 0,
+                backgroundColor: menuController.homeIndex < 4
+                    ? Colors.black.withOpacity(.5)
+                    : Colors.black,
+                expandedHeight: menuController.homeIndex < 4 ? 100 : 0,
                 leading: menuController.homeIndex != 0
                     ? IconButton(
                         onPressed: () {
@@ -603,112 +632,115 @@ class _MovieHomeState extends State<MovieHome>
                       onPressed: () {}, icon: Icon(Icons.filter_list_sharp)),
                   IconButton(onPressed: () {}, icon: Icon(Icons.person)),
                 ],
-                bottom: menuController.homeIndex < 4 ?  PreferredSize(
-                  child: Container(
-                    color: Colors.transparent,
-                    child: Container(
-                      height: 40,
-                      padding: EdgeInsets.only(left: animation.value),
-                      child: Row(
-                        children: [
-                          Offstage(
-                            offstage: menuController.homeIndex == 0 ||
-                                    menuController.homeIndex == 1
-                                ? false
-                                : true,
-                            child: Container(
-                              margin: EdgeInsets.only(right: 15),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(50),
-                                onTap: () {
-                                  menuController.setHomeIndex(1);
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => CategoryDetail(),
-                                  //   ),
-                                  // );
-                                  menuController.menuController.forward();
-                                  // controller.forward();
-                                },
-                                child: CircleAvatar(
-                                  backgroundColor: Colors.transparent,
-                                  foregroundColor: Colors.white,
-                                  child: Text(
-                                    '시리즈',
-                                    style: TextStyle(fontSize: 12.sp),
+                bottom: menuController.homeIndex < 4
+                    ? PreferredSize(
+                        child: Container(
+                          color: Colors.transparent,
+                          child: Container(
+                            height: 40,
+                            padding: EdgeInsets.only(left: animation.value),
+                            child: Row(
+                              children: [
+                                Offstage(
+                                  offstage: menuController.homeIndex == 0 ||
+                                          menuController.homeIndex == 1
+                                      ? false
+                                      : true,
+                                  child: Container(
+                                    margin: EdgeInsets.only(right: 15),
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(50),
+                                      onTap: () {
+                                        menuController.setHomeIndex(1);
+                                        // Navigator.push(
+                                        //   context,
+                                        //   MaterialPageRoute(
+                                        //     builder: (context) => CategoryDetail(),
+                                        //   ),
+                                        // );
+                                        menuController.menuController.forward();
+                                        // controller.forward();
+                                      },
+                                      child: CircleAvatar(
+                                        backgroundColor: Colors.transparent,
+                                        foregroundColor: Colors.white,
+                                        child: Text(
+                                          '시리즈',
+                                          style: TextStyle(fontSize: 12.sp),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
-                          ),
-                          Offstage(
-                            offstage: menuController.homeIndex == 0 ||
-                                    menuController.homeIndex == 2
-                                ? false
-                                : true,
-                            child: Container(
-                              margin: EdgeInsets.only(right: 15),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(50),
-                                onTap: () {
-                                  menuController.setHomeIndex(2);
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => CategoryDetail(),
-                                  //   ),
-                                  // );
-                                  menuController.menuController.forward();
-                                  // controller.forward();
-                                },
-                                child: CircleAvatar(
-                                  backgroundColor: Colors.transparent,
-                                  foregroundColor: Colors.white,
-                                  child: Text(
-                                    '영화',
-                                    style: TextStyle(fontSize: 12.sp),
+                                Offstage(
+                                  offstage: menuController.homeIndex == 0 ||
+                                          menuController.homeIndex == 2
+                                      ? false
+                                      : true,
+                                  child: Container(
+                                    margin: EdgeInsets.only(right: 15),
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(50),
+                                      onTap: () {
+                                        menuController.setHomeIndex(2);
+                                        // Navigator.push(
+                                        //   context,
+                                        //   MaterialPageRoute(
+                                        //     builder: (context) => CategoryDetail(),
+                                        //   ),
+                                        // );
+                                        menuController.menuController.forward();
+                                        // controller.forward();
+                                      },
+                                      child: CircleAvatar(
+                                        backgroundColor: Colors.transparent,
+                                        foregroundColor: Colors.white,
+                                        child: Text(
+                                          '영화',
+                                          style: TextStyle(fontSize: 12.sp),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
+                                Offstage(
+                                  offstage: menuController.homeIndex == 0
+                                      ? false
+                                      : true,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Get.dialog(Category());
+                                    },
+                                    child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 10),
+                                        child: Row(
+                                          children: [
+                                            Text('카테고리',
+                                                style:
+                                                    TextStyle(fontSize: 12.sp)),
+                                            Icon(
+                                              Icons.arrow_drop_down_sharp,
+                                              color: Colors.white,
+                                            )
+                                          ],
+                                        )),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          Offstage(
-                            offstage:
-                                menuController.homeIndex == 0 ? false : true,
-                            child: GestureDetector(
-                              onTap: () {
-                                Get.dialog(Category());
-                              },
-                              child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 10),
-                                  child: Row(
-                                    children: [
-                                      Text('카테고리',
-                                          style: TextStyle(fontSize: 12.sp)),
-                                      Icon(
-                                        Icons.arrow_drop_down_sharp,
-                                        color: Colors.white,
-                                      )
-                                    ],
-                                  )),
-                            ),
-                          ),
-                        ],
+                        ),
+                        preferredSize: const Size(0, 40),
+                      )
+                    : PreferredSize(
+                        preferredSize: const Size(0, 200),
+                        child: Container(
+                          height: 200,
+                          width: 1.sw,
+                          child: Text('youtube'),
+                        ),
                       ),
-                    ),
-                  ),
-                  preferredSize: const Size(0, 40),
-                ) : PreferredSize(
-                  preferredSize: const Size(0, 200),
-                  child: Container(
-                    height: 200,
-                    width: 1.sw,
-                    child: Text('df'),
-                  ),
-
-                ),
                 // flexibleSpace: const FlexibleSpaceBar(
                 // ),
                 // flexibleSpace: FlexibleSpaceBar(
