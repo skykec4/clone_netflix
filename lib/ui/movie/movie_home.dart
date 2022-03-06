@@ -41,10 +41,12 @@ class _MovieHomeState extends State<MovieHome>
   // late AnimationController controller;
 
   int _movieId = -1;
+  String _posterPath = '';
 
-  void setMovieId(int id) {
+  void setMovieId(int id, String poster) {
     setState(() {
       _movieId = id;
+      _posterPath = poster;
     });
   }
 
@@ -227,7 +229,7 @@ class _MovieHomeState extends State<MovieHome>
             child: GestureDetector(
               onTap: () {
                 if (isTrendDetail) {
-                  setMovieId(data?.id ?? 0);
+                  setMovieId(data?.id ?? 0,data?.posterPath?? '');
 
                   menuController.setHomeIndex(4);
                 }
@@ -280,142 +282,144 @@ class _MovieHomeState extends State<MovieHome>
               // ],
             ),
     );
-    return GestureDetector(
-      onTap: () {
-        print("test");
-        print(Navigator.of(context));
-
-        setMovieId(nowPlaying?.results?[randomIndex ?? 0].id ?? 0);
-
-        menuController.setHomeIndex(4);
-        _scrollController.animateTo(0.0,
-            duration: Duration(microseconds: 300), curve: Curves.easeIn);
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => MovieDetail(
-        //       movieId: _movieId.toString(),
-        //     ),
-        //   ),
-        // );
-      },
-      child: Container(
-          width: 1.sw,
-          height: 1.2.sw,
-          child: Stack(
-            children: [
-              Container(
-                // color: Colors.blue,
-                height: 0.9.sw,
-                child: ExtendedImage.network(
-                  '${Constant.imageBaseUrl}${nowPlaying?.results?[randomIndex ?? 0].posterPath}',
-                  width: 1.sw,
-                  fit: BoxFit.fill,
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  margin: EdgeInsets.only(bottom: 0.17.sw),
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: DecoratedText(
-                    '${nowPlaying?.results?[randomIndex ?? 0].title}',
-                    borderColor: Color(0xff404040),
-                    borderWidth: 3,
-                    fontSize: 25.sp,
-                    // fontWeight: FontWeight.w100,
-                    shadows: [
-                      Shadow(
-                          color: Colors.black,
-                          blurRadius: 1,
-                          offset: Offset(4, 4))
-                    ],
-                    fillGradient: LinearGradient(
-                        colors: [Color(0xffb3b3b3), Colors.white]),
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  height: 0.3.sw,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // Text('${nowPlaying?.results?[randomIndex].title}'),
-
-                      Flex(
-                        direction: Axis.horizontal,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Container(
-                            width: 0.25.sw,
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.add,
-                                  color: Colors.white,
-                                  size: 16.sp,
-                                ),
-                                Text(
-                                  '내가 찜한 콘텐츠',
-                                  style: TextStyle(
-                                      fontSize: 10.sp, color: Colors.white70),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            width: 0.25.sw,
-                            child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    primary: Colors.white,
-                                    onPrimary: Colors.black),
-                                onPressed: () {},
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.play_arrow,
-                                      size: 18.sp,
-                                    ),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Text(
-                                      '재생',
-                                      style: TextStyle(fontSize: 14.sp),
-                                    ),
-                                  ],
-                                )),
-                          ),
-                          Container(
-                            width: 0.25.sw,
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.info,
-                                  color: Colors.white,
-                                  size: 16.sp,
-                                ),
-                                Text(
-                                  '정보',
-                                  style: TextStyle(
-                                      fontSize: 10.sp, color: Colors.white70),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              )
-            ],
-          )),
-    );
+    // return GestureDetector(
+    //   onTap: () {
+    //     print("test");
+    //     print(Navigator.of(context));
+    //
+    //     setMovieId(
+    //         nowPlaying?.results?[randomIndex ?? 0].id ?? 0,
+    //     );
+    //
+    //     menuController.setHomeIndex(4);
+    //     _scrollController.animateTo(0.0,
+    //         duration: Duration(microseconds: 300), curve: Curves.easeIn);
+    //     // Navigator.push(
+    //     //   context,
+    //     //   MaterialPageRoute(
+    //     //     builder: (context) => MovieDetail(
+    //     //       movieId: _movieId.toString(),
+    //     //     ),
+    //     //   ),
+    //     // );
+    //   },
+    //   child: Container(
+    //       width: 1.sw,
+    //       height: 1.2.sw,
+    //       child: Stack(
+    //         children: [
+    //           Container(
+    //             // color: Colors.blue,
+    //             height: 0.9.sw,
+    //             child: ExtendedImage.network(
+    //               '${Constant.imageBaseUrl}${nowPlaying?.results?[randomIndex ?? 0].posterPath}',
+    //               width: 1.sw,
+    //               fit: BoxFit.fill,
+    //             ),
+    //           ),
+    //           Align(
+    //             alignment: Alignment.bottomCenter,
+    //             child: Container(
+    //               margin: EdgeInsets.only(bottom: 0.17.sw),
+    //               padding: EdgeInsets.symmetric(horizontal: 10),
+    //               child: DecoratedText(
+    //                 '${nowPlaying?.results?[randomIndex ?? 0].title}',
+    //                 borderColor: Color(0xff404040),
+    //                 borderWidth: 3,
+    //                 fontSize: 25.sp,
+    //                 // fontWeight: FontWeight.w100,
+    //                 shadows: [
+    //                   Shadow(
+    //                       color: Colors.black,
+    //                       blurRadius: 1,
+    //                       offset: Offset(4, 4))
+    //                 ],
+    //                 fillGradient: LinearGradient(
+    //                     colors: [Color(0xffb3b3b3), Colors.white]),
+    //               ),
+    //             ),
+    //           ),
+    //           Align(
+    //             alignment: Alignment.bottomCenter,
+    //             child: Container(
+    //               height: 0.3.sw,
+    //               child: Column(
+    //                 mainAxisAlignment: MainAxisAlignment.end,
+    //                 children: [
+    //                   // Text('${nowPlaying?.results?[randomIndex].title}'),
+    //
+    //                   Flex(
+    //                     direction: Axis.horizontal,
+    //                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    //                     children: [
+    //                       Container(
+    //                         width: 0.25.sw,
+    //                         child: Column(
+    //                           children: [
+    //                             Icon(
+    //                               Icons.add,
+    //                               color: Colors.white,
+    //                               size: 16.sp,
+    //                             ),
+    //                             Text(
+    //                               '내가 찜한 콘텐츠',
+    //                               style: TextStyle(
+    //                                   fontSize: 10.sp, color: Colors.white70),
+    //                             ),
+    //                           ],
+    //                         ),
+    //                       ),
+    //                       Container(
+    //                         width: 0.25.sw,
+    //                         child: ElevatedButton(
+    //                             style: ElevatedButton.styleFrom(
+    //                                 primary: Colors.white,
+    //                                 onPrimary: Colors.black),
+    //                             onPressed: () {},
+    //                             child: Row(
+    //                               mainAxisAlignment: MainAxisAlignment.center,
+    //                               crossAxisAlignment: CrossAxisAlignment.center,
+    //                               children: [
+    //                                 Icon(
+    //                                   Icons.play_arrow,
+    //                                   size: 18.sp,
+    //                                 ),
+    //                                 SizedBox(
+    //                                   width: 5,
+    //                                 ),
+    //                                 Text(
+    //                                   '재생',
+    //                                   style: TextStyle(fontSize: 14.sp),
+    //                                 ),
+    //                               ],
+    //                             )),
+    //                       ),
+    //                       Container(
+    //                         width: 0.25.sw,
+    //                         child: Column(
+    //                           children: [
+    //                             Icon(
+    //                               Icons.info,
+    //                               color: Colors.white,
+    //                               size: 16.sp,
+    //                             ),
+    //                             Text(
+    //                               '정보',
+    //                               style: TextStyle(
+    //                                   fontSize: 10.sp, color: Colors.white70),
+    //                             ),
+    //                           ],
+    //                         ),
+    //                       ),
+    //                     ],
+    //                   )
+    //                 ],
+    //               ),
+    //             ),
+    //           )
+    //         ],
+    //       )),
+    // );
   }
 
   Widget _movieList(NowPlayingModel? movieList, String title) {
@@ -454,7 +458,7 @@ class _MovieHomeState extends State<MovieHome>
                 onTap: () {
                   Get.back();
                   menuController.setHomeIndex(4);
-                  setMovieId(data.id!);
+                  setMovieId(data.id!,data.posterPath!);
 
                   _scrollController.animateTo(0.0,
                       duration: Duration(microseconds: 300),
@@ -601,7 +605,7 @@ class _MovieHomeState extends State<MovieHome>
                 onTap: () {
                   Get.back();
                   menuController.setHomeIndex(4);
-                  setMovieId(data.id!);
+                  setMovieId(data.id!, data.posterPath!);
                   _scrollController.animateTo(0.0,
                       duration: Duration(microseconds: 300),
                       curve: Curves.easeIn);
@@ -804,7 +808,7 @@ class _MovieHomeState extends State<MovieHome>
         width: 1.sw,
         height: 1.sh,
         child: MovieDetail(
-          movieId: _movieId.toString(),
+          movieId: _movieId.toString(), postPath: _posterPath,
         ),
       );
     } else {

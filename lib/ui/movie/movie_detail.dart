@@ -12,8 +12,10 @@ import '../../util/constant.dart';
 
 class MovieDetail extends StatefulWidget {
   final String movieId;
+  final String postPath;
 
-  MovieDetail({Key? key, required this.movieId}) : super(key: key);
+  MovieDetail({Key? key, required this.movieId, required this.postPath})
+      : super(key: key);
 
   @override
   State<MovieDetail> createState() => _MovieDetailState();
@@ -66,6 +68,7 @@ class _MovieDetailState extends State<MovieDetail> {
       fetchSimilar();
     });
   }
+
   //
   // @override
   // void dispose(){
@@ -73,7 +76,6 @@ class _MovieDetailState extends State<MovieDetail> {
   //
   //   print('dispose');
   // }
-
 
   String calRunTime(int runtime) {
     // int time = int.parse(runtime);
@@ -123,7 +125,12 @@ class _MovieDetailState extends State<MovieDetail> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(child: ExtendedImage.network('${Constant.imageBaseUrl}${_detailResult?.posterPath}',width: 0.8.sw,height: 1.2.sw,)),
+          Center(
+              child: ExtendedImage.network(
+            '${Constant.imageBaseUrl}${widget.postPath}',
+            width: 0.8.sw,
+            height: 1.2.sw,
+          )),
           SizedBox(
             height: 10,
           ),
