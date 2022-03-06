@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:netflix_clone/splash/splash.dart';
+import 'package:netflix_clone/test/test_home.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 
 import 'util/constant.dart';
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
                       bodyText1: TextStyle(color: Colors.white),
                       bodyText2: TextStyle(color: Colors.white))),
               home: const Splash(),
+              // home: const TestHome(),
               // home: const HomePage(title: 'FlutterScreenUtil Demo'),
             ));
   }

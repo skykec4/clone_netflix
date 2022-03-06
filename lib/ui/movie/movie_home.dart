@@ -33,8 +33,10 @@ class _MovieHomeState extends State<MovieHome>
   NowPlayingModel? popular;
   NowPlayingModel? topRated;
   NowPlayingModel? upcoming;
+  NowPlayingModel? trending;
 
   late Animation<double> animation;
+  int? randomIndex;
 
   // late AnimationController controller;
 
@@ -94,13 +96,25 @@ class _MovieHomeState extends State<MovieHome>
     }
   }
 
+  void fetchTrending() async {
+    try {
+      trending =
+          await apiController.api.getTrending('all', 'week', Constant.apiKey);
+    } on DioError catch (e) {
+      print('error fetch ${e.response?.data}');
+      trending = NowPlayingModel.fromJson(e.response?.data);
+    } finally {
+      setState(() {});
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
     _scrollController.addListener(() {
-      print('offset = ${_scrollController.offset}');
+      // print('offset = ${_scrollController.offset}');
     });
 
     apiController = Get.find<ApiController>();
@@ -111,7 +125,7 @@ class _MovieHomeState extends State<MovieHome>
     // controller = AnimationController(
     //     duration: const Duration(milliseconds: 200), vsync: this);
 
-    animation = Tween<double>(begin: 30, end: 10).animate(CurvedAnimation(
+    animation = Tween<double>(begin: 10, end: 0).animate(CurvedAnimation(
         parent: menuController.menuController, curve: Curves.easeIn))
       ..addListener(() {
         setState(() {});
@@ -122,34 +136,168 @@ class _MovieHomeState extends State<MovieHome>
       fetchPopular();
       fetchTopRated();
       fetchUpcoming();
+      fetchTrending();
     });
   }
 
   ScrollController _scrollController = ScrollController();
 
+  bool isTrendDetail = false;
+
+  void setIsTrendDetail(bool state) {
+    setState(() {
+      isTrendDetail = state;
+    });
+  }
+
+  Widget _topPages(Results? data) {
+    return GestureDetector(
+      onTap: () {
+        setIsTrendDetail(true);
+      },
+      child: Stack(
+        children: [
+          ExtendedImage.network(
+            '${Constant.imageBaseUrl}${data?.posterPath}',
+            width: 1.sw,
+            fit: BoxFit.fill,
+          ),
+          isTrendDetail
+              ? GestureDetector(
+                  onTap: () {
+                    setIsTrendDetail(false);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    color: Colors.black.withOpacity(.5),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('${data?.overview}'),
+                        Divider(
+                          color: Colors.white,
+                          thickness: 1,
+                          height: 30,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                                '${data?.releaseDate == null ? data?.firstAirDate?.substring(0, 4) : data?.releaseDate?.substring(0, 4)}'),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Icon(
+                              Icons.star,
+                              color: Colors.white,
+                              size: 12.sp,
+                            ),
+                            Text('${data?.voteAverage}'),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              : SizedBox(),
+          Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                margin: EdgeInsets.only(top: 5, right: 5),
+                // width: 1.sw,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  color: Colors.black.withOpacity(.5),
+                ),
+                width: 40,
+                height: 40,
+                child: data?.mediaType == 'tv'
+                    ? Icon(
+                        Icons.tv,
+                        color: Colors.white,
+                      )
+                    : Icon(
+                        Icons.movie,
+                        color: Colors.white,
+                      ),
+              )),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: GestureDetector(
+              onTap: () {
+                if (isTrendDetail) {
+                  setMovieId(data?.id ?? 0);
+
+                  menuController.setHomeIndex(4);
+                }
+              },
+              child: Container(
+                color: Colors.black.withOpacity(.5),
+                // color: Colors.red,
+                alignment: Alignment.center,
+                width: 1.sw,
+                height: 60,
+                child: Text(
+                  '${isTrendDetail ? '상세보기' : data?.title == null ? data?.name : data?.title}',
+                  style: TextStyle(fontSize: 20.sp),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget _top() {
     // print('random : ${Random().nextInt(10)}');
     // print('random : ${nowPlaying?.results?.length ?? 0}');
-    int randomIndex = Random().nextInt(nowPlaying?.results?.length ?? 1);
 
-    print(randomIndex);
-    if (nowPlaying == null) {
-      return Text('');
-    }
+    // print(randomIndex);
+    // if (nowPlaying == null) {
+    //   randomIndex = Random().nextInt(20);
+    //   return Text('');
+    // }
+
+    //trending
+    return Container(
+      alignment: Alignment.center,
+      width: 0.8.sw,
+      height: 1.2.sw,
+      child: trending == null
+          ? CircularProgressIndicator(
+              color: Colors.white,
+            )
+          : PageView.builder(
+              itemCount: trending?.results?.length,
+              itemBuilder: (BuildContext context, int index) {
+                return _topPages(trending?.results?[index]);
+              },
+              // children: [
+              //   _topPages(trending.results),
+              //   Text('page2'),
+              // ],
+            ),
+    );
     return GestureDetector(
       onTap: () {
+        print("test");
+        print(Navigator.of(context));
 
-        setMovieId(nowPlaying?.results?[randomIndex].id ?? 0);
+        setMovieId(nowPlaying?.results?[randomIndex ?? 0].id ?? 0);
 
         menuController.setHomeIndex(4);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MovieDetail(
-              movieId: _movieId.toString(),
-            ),
-          ),
-        );
+        _scrollController.animateTo(0.0,
+            duration: Duration(microseconds: 300), curve: Curves.easeIn);
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => MovieDetail(
+        //       movieId: _movieId.toString(),
+        //     ),
+        //   ),
+        // );
       },
       child: Container(
           width: 1.sw,
@@ -157,9 +305,10 @@ class _MovieHomeState extends State<MovieHome>
           child: Stack(
             children: [
               Container(
+                // color: Colors.blue,
                 height: 0.9.sw,
                 child: ExtendedImage.network(
-                  '${Constant.imageBaseUrl}${nowPlaying?.results?[randomIndex].posterPath}',
+                  '${Constant.imageBaseUrl}${nowPlaying?.results?[randomIndex ?? 0].posterPath}',
                   width: 1.sw,
                   fit: BoxFit.fill,
                 ),
@@ -170,7 +319,7 @@ class _MovieHomeState extends State<MovieHome>
                   margin: EdgeInsets.only(bottom: 0.17.sw),
                   padding: EdgeInsets.symmetric(horizontal: 10),
                   child: DecoratedText(
-                    '${nowPlaying?.results?[randomIndex].title}',
+                    '${nowPlaying?.results?[randomIndex ?? 0].title}',
                     borderColor: Color(0xff404040),
                     borderWidth: 3,
                     fontSize: 25.sp,
@@ -307,14 +456,18 @@ class _MovieHomeState extends State<MovieHome>
                   menuController.setHomeIndex(4);
                   setMovieId(data.id!);
 
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MovieDetail(
-                        movieId: _movieId.toString(),
-                      ),
-                    ),
-                  );
+                  _scrollController.animateTo(0.0,
+                      duration: Duration(microseconds: 300),
+                      curve: Curves.easeIn);
+
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => MovieDetail(
+                  //       movieId: _movieId.toString(),
+                  //     ),
+                  //   ),
+                  // );
                 },
                 child: Flex(
                   direction: Axis.horizontal,
@@ -449,6 +602,9 @@ class _MovieHomeState extends State<MovieHome>
                   Get.back();
                   menuController.setHomeIndex(4);
                   setMovieId(data.id!);
+                  _scrollController.animateTo(0.0,
+                      duration: Duration(microseconds: 300),
+                      curve: Curves.easeIn);
                 },
                 child: Container(
                   padding: EdgeInsets.all(5),
@@ -563,15 +719,16 @@ class _MovieHomeState extends State<MovieHome>
         final mainMenuAnimation =
             Tween<Offset>(begin: Offset(-1.0, 0.0), end: Offset(0.0, 0.0))
                 .animate(animation);
-
+        if (homeIndex == 4) {
+          return SlideTransition(
+            position: mainMenuAnimation,
+            child: child,
+          );
+        }
         return FadeTransition(
           opacity: animation,
           child: child,
         );
-        // return SlideTransition(
-        //   position: mainMenuAnimation,
-        //   child: child,
-        // );
       },
       // child: SingleChildScrollView(
       //   child: Column(
@@ -584,19 +741,30 @@ class _MovieHomeState extends State<MovieHome>
       //     ],
       //   ),
       // ),
-      child: homeIndex == 0
-          ? SingleChildScrollView(
-              child: Column(
-                children: [
-                  _top(),
-                  _movieList(nowPlaying, '현재상영작'),
-                  _movieList(upcoming, '개봉예정'),
-                  _movieList(popular, '인기영화'),
-                  _movieList(topRated, 'TopRate'),
-                ],
-              ),
-            )
-          : SizedBox(),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            _top(),
+            _movieList(nowPlaying, '현재상영작'),
+            _movieList(upcoming, '개봉예정'),
+            _movieList(popular, '인기영화'),
+            _movieList(topRated, 'TopRate'),
+          ],
+        ),
+      ),
+      // child: homeIndex == 0
+      //     ? SingleChildScrollView(
+      //         child: Column(
+      //           children: [
+      //             _top(),
+      //             _movieList(nowPlaying, '현재상영작'),
+      //             _movieList(upcoming, '개봉예정'),
+      //             _movieList(popular, '인기영화'),
+      //             _movieList(topRated, 'TopRate'),
+      //           ],
+      //         ),
+      //       )
+      //     : SizedBox(),
     );
   }
 
@@ -607,28 +775,39 @@ class _MovieHomeState extends State<MovieHome>
           final subMenuAnimation =
               Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset(0.0, 0.0))
                   .animate(animation);
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
-          // return SlideTransition(
-          //   position: subMenuAnimation,
-          //   child: child,
-          // );
+
+          if (homeIndex == 0 || homeIndex == 4) {
+            return SlideTransition(
+              position: subMenuAnimation,
+              child: child,
+            );
+          } else {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          }
         },
         child: _homeSub(homeIndex));
   }
 
   Widget _homeSub(int homeIndex) {
     if (homeIndex == 1 || homeIndex == 2) {
-      return CategoryDetail();
-    }
-    // else if (homeIndex == 4) {
-    //   return MovieDetail(
-    //     movieId: _movieId.toString(),
-    //   );
-    // }
-    else {
+      return Container(
+          color: Colors.black,
+          width: 1.sw,
+          height: 1.sh,
+          child: CategoryDetail());
+    } else if (homeIndex == 4) {
+      return Container(
+        color: Colors.black,
+        width: 1.sw,
+        height: 1.sh,
+        child: MovieDetail(
+          movieId: _movieId.toString(),
+        ),
+      );
+    } else {
       return SizedBox();
     }
 
@@ -654,190 +833,171 @@ class _MovieHomeState extends State<MovieHome>
           physics: BouncingScrollPhysics(),
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return [
-              menuController.homeIndex < 4
-                  ? SliverAppBar(
-                      automaticallyImplyLeading: false,
-                      pinned: true,
-                      // snap: false,
-                      // floating: false,
-                      snap: menuController.homeIndex < 4 ? true : false,
-                      floating: menuController.homeIndex < 4 ? true : false,
-                      backgroundColor: menuController.homeIndex < 4
-                          ? Colors.black.withOpacity(.5)
-                          : Colors.black,
-                      // expandedHeight: 100,
-                      expandedHeight: menuController.homeIndex < 4 ? 100 : 0,
-                      leading: menuController.homeIndex != 0
-                          ? IconButton(
-                              onPressed: () {
-                                menuController.setHomeIndex(0);
-                                menuController.menuController.reverse();
-                                _scrollController.animateTo(0.0,
-                                    duration: Duration(microseconds: 300),
-                                    curve: Curves.easeIn);
+              SliverAppBar(
+                automaticallyImplyLeading: false,
+                pinned: true,
+                // snap: false,
+                // floating: false,
+                snap: menuController.homeIndex < 4 ? true : false,
+                floating: menuController.homeIndex < 4 ? true : false,
+                backgroundColor: menuController.homeIndex < 4
+                    ? Colors.black.withOpacity(.5)
+                    : Colors.black,
+                // expandedHeight: 100,
+                expandedHeight: menuController.homeIndex < 4 ? 100 : 0,
+                leading: menuController.homeIndex != 0
+                    ? IconButton(
+                        onPressed: () {
+                          menuController.setHomeIndex(0);
+                          menuController.menuController.reverse();
+                          _scrollController.animateTo(0.0,
+                              duration: Duration(microseconds: 300),
+                              curve: Curves.easeIn);
 
-                                // controller.reverse();
-                              },
-                              icon: Icon(Icons.arrow_back),
-                            )
-                          : null,
-                      title: menuController.homeIndex != 0
-                          ? _appBarTitle(menuController.homeIndex)
-                          : Image.asset(
-                              'assets/images/logo.png',
-                              height: 60,
-                            ),
-                      centerTitle: false,
-                      actions: [
-                        IconButton(
-                            onPressed: () {}, icon: Icon(Icons.search_sharp)),
-                        IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.filter_list_sharp)),
-                        IconButton(onPressed: () {}, icon: Icon(Icons.person)),
-                      ],
-                      bottom: menuController.homeIndex < 5
-                          ? PreferredSize(
-                              child: Container(
-                                color: Colors.transparent,
-                                child: Container(
-                                  height: 40,
-                                  padding:
-                                      EdgeInsets.only(left: animation.value),
-                                  child: Row(
-                                    children: [
-                                      Offstage(
-                                        offstage: menuController.homeIndex ==
-                                                    0 ||
-                                                menuController.homeIndex == 1
-                                            ? false
-                                            : true,
-                                        child: Container(
-                                          margin: EdgeInsets.only(right: 15),
-                                          child: InkWell(
-                                            borderRadius:
-                                                BorderRadius.circular(50),
-                                            onTap: () {
-                                              menuController.setHomeIndex(1);
-                                              _scrollController.animateTo(0.0,
-                                                  duration: Duration(
-                                                      microseconds: 300),
-                                                  curve: Curves.easeIn);
-                                              // Navigator.push(
-                                              //   context,
-                                              //   MaterialPageRoute(
-                                              //     builder: (context) => CategoryDetail(),
-                                              //   ),
-                                              // );
-                                              menuController.menuController
-                                                  .forward();
-                                              // controller.forward();
-                                            },
-                                            child: CircleAvatar(
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              foregroundColor: Colors.white,
-                                              child: Text(
-                                                '시리즈',
-                                                style:
-                                                    TextStyle(fontSize: 12.sp),
-                                              ),
-                                            ),
-                                          ),
+                          // controller.reverse();
+                        },
+                        icon: Icon(Icons.arrow_back),
+                      )
+                    : null,
+                title: menuController.homeIndex != 0
+                    ? _appBarTitle(menuController.homeIndex)
+                    : Image.asset(
+                        'assets/images/logo.png',
+                        height: 60,
+                      ),
+                centerTitle: false,
+                actions: [
+                  IconButton(onPressed: () {}, icon: Icon(Icons.search_sharp)),
+                  IconButton(
+                      onPressed: () {}, icon: Icon(Icons.filter_list_sharp)),
+                  IconButton(onPressed: () {}, icon: Icon(Icons.person)),
+                ],
+                bottom: menuController.homeIndex < 4
+                    ? PreferredSize(
+                        child: Container(
+                          child: Container(
+                            height: 40,
+                            padding: EdgeInsets.only(left: animation.value),
+                            child: Row(
+                              children: [
+                                Offstage(
+                                  offstage: menuController.homeIndex == 0 ||
+                                          menuController.homeIndex == 1
+                                      ? false
+                                      : true,
+                                  child: Container(
+                                    margin: EdgeInsets.only(left: 15),
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(50),
+                                      onTap: () {
+                                        menuController.setHomeIndex(1);
+                                        _scrollController.animateTo(0.0,
+                                            duration:
+                                                Duration(microseconds: 300),
+                                            curve: Curves.easeIn);
+                                        // Navigator.push(
+                                        //   context,
+                                        //   MaterialPageRoute(
+                                        //     builder: (context) => CategoryDetail(),
+                                        //   ),
+                                        // );
+                                        menuController.menuController.forward();
+                                        // controller.forward();
+                                      },
+                                      child: CircleAvatar(
+                                        backgroundColor: Colors.transparent,
+                                        foregroundColor: Colors.white,
+                                        child: Text(
+                                          '시리즈',
+                                          style: TextStyle(fontSize: 12.sp),
                                         ),
                                       ),
-                                      Offstage(
-                                        offstage: menuController.homeIndex ==
-                                                    0 ||
-                                                menuController.homeIndex == 2
-                                            ? false
-                                            : true,
-                                        child: Container(
-                                          margin: EdgeInsets.only(right: 15),
-                                          child: InkWell(
-                                            borderRadius:
-                                                BorderRadius.circular(50),
-                                            onTap: () {
-                                              menuController.setHomeIndex(2);
-                                              _scrollController.animateTo(0.0,
-                                                  duration: Duration(
-                                                      microseconds: 300),
-                                                  curve: Curves.easeIn);
-                                              // Navigator.push(
-                                              //   context,
-                                              //   MaterialPageRoute(
-                                              //     builder: (context) => CategoryDetail(),
-                                              //   ),
-                                              // );
-                                              menuController.menuController
-                                                  .forward();
-                                              // controller.forward();
-                                            },
-                                            child: CircleAvatar(
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              foregroundColor: Colors.white,
-                                              child: Text(
-                                                '영화',
-                                                style:
-                                                    TextStyle(fontSize: 12.sp),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Offstage(
-                                        offstage: menuController.homeIndex == 0
-                                            ? false
-                                            : true,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            Get.dialog(Category());
-                                          },
-                                          child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 10),
-                                              child: Row(
-                                                children: [
-                                                  Text('카테고리',
-                                                      style: TextStyle(
-                                                          fontSize: 12.sp)),
-                                                  Icon(
-                                                    Icons.arrow_drop_down_sharp,
-                                                    color: Colors.white,
-                                                  )
-                                                ],
-                                              )),
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                              preferredSize: const Size(0, 40),
-                            )
-                          : PreferredSize(
-                              preferredSize: const Size(0, 200),
-                              child: Container(
-                                height: 200,
-                                width: 1.sw,
-                                child: Text('youtube'),
-                              ),
+                                Offstage(
+                                  offstage: menuController.homeIndex == 0 ||
+                                          menuController.homeIndex == 2
+                                      ? false
+                                      : true,
+                                  child: Container(
+                                    margin: EdgeInsets.only(left: 15),
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(50),
+                                      onTap: () {
+                                        menuController.setHomeIndex(2);
+                                        _scrollController.animateTo(0.0,
+                                            duration:
+                                                Duration(microseconds: 300),
+                                            curve: Curves.easeIn);
+                                        // Navigator.push(
+                                        //   context,
+                                        //   MaterialPageRoute(
+                                        //     builder: (context) => CategoryDetail(),
+                                        //   ),
+                                        // );
+                                        menuController.menuController.forward();
+                                        // controller.forward();
+                                      },
+                                      child: CircleAvatar(
+                                        backgroundColor: Colors.transparent,
+                                        foregroundColor: Colors.white,
+                                        child: Text(
+                                          '영화',
+                                          style: TextStyle(fontSize: 12.sp),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Offstage(
+                                  offstage: menuController.homeIndex == 0
+                                      ? false
+                                      : true,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Get.dialog(Category());
+                                    },
+                                    child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15, vertical: 10),
+                                        child: Row(
+                                          children: [
+                                            Text('카테고리',
+                                                style:
+                                                    TextStyle(fontSize: 12.sp)),
+                                            Icon(
+                                              Icons.arrow_drop_down_sharp,
+                                              color: Colors.white,
+                                            )
+                                          ],
+                                        )),
+                                  ),
+                                ),
+                              ],
                             ),
-                      // flexibleSpace: const FlexibleSpaceBar(
-                      // ),
-                      // flexibleSpace: FlexibleSpaceBar(
-                      //   background : Container(
-                      //     margin: EdgeInsets.only(top: 80),
-                      //       color: Colors.red,
-                      //       width: double.infinity,
-                      //       child: ExtendedImage.network('https://picsum.photos/200/300',width: 1,fit: BoxFit.cover)),
-                      // )
-                    )
-                  : SliverAppBar(),
-              SliverAppBar()
+                          ),
+                        ),
+                        preferredSize: const Size(0, 40),
+                      )
+                    : PreferredSize(
+                        preferredSize: const Size(0, 0),
+                        child: Container(
+                          height: 0,
+                          width: 1.sw,
+                          child: Text('youtube'),
+                        ),
+                      ),
+                // flexibleSpace: const FlexibleSpaceBar(
+                // ),
+                // flexibleSpace: FlexibleSpaceBar(
+                //   background : Container(
+                //     margin: EdgeInsets.only(top: 80),
+                //       color: Colors.red,
+                //       width: double.infinity,
+                //       child: ExtendedImage.network('https://picsum.photos/200/300',width: 1,fit: BoxFit.cover)),
+                // )
+              )
             ];
           },
           body: Stack(

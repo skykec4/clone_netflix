@@ -60,6 +60,9 @@ Results _$ResultsFromJson(Map<String, dynamic> json) => Results(
       video: json['video'] as bool?,
       voteAverage: (json['vote_average'] as num?)?.toDouble(),
       voteCount: json['vote_count'] as int?,
+      mediaType: json['media_type'] as String?,
+      name: json['name'] as String?,
+      firstAirDate: json['first_air_date'] as String?,
     );
 
 Map<String, dynamic> _$ResultsToJson(Results instance) => <String, dynamic>{
@@ -77,4 +80,7 @@ Map<String, dynamic> _$ResultsToJson(Results instance) => <String, dynamic>{
       'video': instance.video,
       'vote_average': instance.voteAverage,
       'vote_count': instance.voteCount,
+      'media_type': instance.mediaType,
+      'name': instance.name,
+      'first_air_date': instance.firstAirDate,
     };

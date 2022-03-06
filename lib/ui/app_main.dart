@@ -58,11 +58,15 @@ class _AppMainState extends State<AppMain> {
       onWillPop: GetPlatform.isAndroid ? _onWillPop : null,
       // onWillPop: _isExitDesired,
       child: Obx(() => Scaffold(
+
+
         /*
           appBar: MyCustomAppBar(
             height: 100,
             c: c,
           ),*/
+//마지맊쓰는거 아래꺼
+/*
 
           appBar: c.homeIndex  < 4 ? null : AppBar(
             leading: c.homeIndex < 1 ? null : IconButton(onPressed: () async {
@@ -91,7 +95,7 @@ class _AppMainState extends State<AppMain> {
               ]
           ),
 
-
+*/
           // appBar: AppBar(
           //   // leading: _back(),
           //   title: Image.asset('assets/images/logo.png',height: 50,color: Colors.red,),
@@ -231,7 +235,7 @@ class _MyCustomAppBarState extends State<MyCustomAppBar> {
     // TODO: implement initState
     super.initState();
     _scrollController.addListener(() {
-      print('offset = ${_scrollController.offset}');
+      // print('offset = ${_scrollController.offset}');
     });
     animation = Tween<double>(begin: 30, end: 10).animate(
         CurvedAnimation(parent: widget.c.menuController, curve: Curves.easeIn))
@@ -270,8 +274,8 @@ class _MyCustomAppBarState extends State<MyCustomAppBar> {
               backgroundColor: widget.c.homeIndex < 4
                   ? Colors.black.withOpacity(.5)
                   : Colors.black,
-              expandedHeight: 100,
-              // expandedHeight: menuController.homeIndex < 4 ? 100 : 0,
+              // expandedHeight: 100,
+              expandedHeight: widget.c.homeIndex < 4 ? 100 : 0,
               leading: widget.c.homeIndex != 0
                   ? IconButton(
                       onPressed: () {

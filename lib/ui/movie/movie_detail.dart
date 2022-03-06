@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,7 +9,6 @@ import '../../models/movie/details_model.dart';
 import '../../models/movie/error_model.dart';
 import '../../models/movie/now_palying_model.dart';
 import '../../util/constant.dart';
-import 'package:dio/dio.dart';
 
 class MovieDetail extends StatefulWidget {
   final String movieId;
@@ -66,6 +66,14 @@ class _MovieDetailState extends State<MovieDetail> {
       fetchSimilar();
     });
   }
+  //
+  // @override
+  // void dispose(){
+  //   super.dispose();
+  //
+  //   print('dispose');
+  // }
+
 
   String calRunTime(int runtime) {
     // int time = int.parse(runtime);
@@ -115,7 +123,10 @@ class _MovieDetailState extends State<MovieDetail> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ExtendedImage.network('${Constant.imageBaseUrl}${_detailResult?.posterPath}'),
+          Center(child: ExtendedImage.network('${Constant.imageBaseUrl}${_detailResult?.posterPath}',width: 0.8.sw,height: 1.2.sw,)),
+          SizedBox(
+            height: 10,
+          ),
           Text(
             '${_detailResult!.title}',
             style: TextStyle(fontSize: 20.sp),

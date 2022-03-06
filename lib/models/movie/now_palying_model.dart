@@ -18,18 +18,18 @@ class NowPlayingModel {
   int? totalResults;
 
   NowPlayingModel(
-      {
-        this.statusMessage,
-        this.success,
-        this.statusCode,
-        this.dates,
-        this.page,
-        this.results,
-        this.totalPages,
-        this.totalResults});
+      {this.statusMessage,
+      this.success,
+      this.statusCode,
+      this.dates,
+      this.page,
+      this.results,
+      this.totalPages,
+      this.totalResults});
 
+  factory NowPlayingModel.fromJson(Map<String, dynamic> json) =>
+      _$NowPlayingModelFromJson(json);
 
-  factory NowPlayingModel.fromJson(Map<String, dynamic> json) => _$NowPlayingModelFromJson(json);
   Map<String, dynamic> toJson() => _$NowPlayingModelToJson(this);
 }
 
@@ -41,6 +41,7 @@ class Dates {
   Dates({this.maximum, this.minimum});
 
   factory Dates.fromJson(Map<String, dynamic> json) => _$DatesFromJson(json);
+
   Map<String, dynamic> toJson() => _$DatesToJson(this);
 }
 
@@ -68,24 +69,33 @@ class Results {
   double? voteAverage;
   @JsonKey(name: 'vote_count')
   int? voteCount;
+  @JsonKey(name: 'media_type')
+  String? mediaType;
+  String? name;
+  @JsonKey(name: 'first_air_date')
+  String? firstAirDate;
 
   Results(
       {this.adult,
-        this.backdropPath,
-        this.genreIds,
-        this.id,
-        this.originalLanguage,
-        this.originalTitle,
-        this.overview,
-        this.popularity,
-        this.posterPath,
-        this.releaseDate,
-        this.title,
-        this.video,
-        this.voteAverage,
-        this.voteCount});
+      this.backdropPath,
+      this.genreIds,
+      this.id,
+      this.originalLanguage,
+      this.originalTitle,
+      this.overview,
+      this.popularity,
+      this.posterPath,
+      this.releaseDate,
+      this.title,
+      this.video,
+      this.voteAverage,
+      this.voteCount,
+      this.mediaType,
+      this.name,
+      this.firstAirDate});
 
+  factory Results.fromJson(Map<String, dynamic> json) =>
+      _$ResultsFromJson(json);
 
-  factory Results.fromJson(Map<String, dynamic> json) => _$ResultsFromJson(json);
   Map<String, dynamic> toJson() => _$ResultsToJson(this);
 }

@@ -27,71 +27,78 @@ abstract class ApiService {
   @Headers(<String, dynamic>{"content-type": "application/json"})
   @FormUrlEncoded()
   Future<NowPlayingModel> getNowPlaying(
-      @Query("api_key") String apiKey,
-      @Query("language") String language,
-      @Query("page") String page,
-      );
+    @Query("api_key") String apiKey,
+    @Query("language") String language,
+    @Query("page") String page,
+  );
 
   //popular
   @GET("movie/popular")
   @Headers(<String, dynamic>{"content-type": "application/json"})
   @FormUrlEncoded()
   Future<NowPlayingModel> getPopular(
-      @Query("api_key") String apiKey,
-      @Query("language") String language,
-      @Query("page") String page,
-      );
+    @Query("api_key") String apiKey,
+    @Query("language") String language,
+    @Query("page") String page,
+  );
 
   //top_rated
   @GET("movie/top_rated")
   @Headers(<String, dynamic>{"content-type": "application/json"})
   @FormUrlEncoded()
   Future<NowPlayingModel> getTopRated(
-      @Query("api_key") String apiKey,
-      @Query("language") String language,
-      @Query("page") String page,
-      );
+    @Query("api_key") String apiKey,
+    @Query("language") String language,
+    @Query("page") String page,
+  );
 
   //upcoming
   @GET("movie/upcoming")
   @Headers(<String, dynamic>{"content-type": "application/json"})
   @FormUrlEncoded()
   Future<NowPlayingModel> getUpcoming(
-      @Query("api_key") String apiKey,
-      @Query("language") String language,
-      @Query("page") String page,
-      );
+    @Query("api_key") String apiKey,
+    @Query("language") String language,
+    @Query("page") String page,
+  );
 
   //get details
   @GET("movie/{movieId}")
   @Headers(<String, dynamic>{"content-type": "application/json"})
   @FormUrlEncoded()
   Future<DetailsModel> getDetails(
-      @Path("movieId") String movieId,
-      @Query("api_key") String apiKey,
-      @Query("language") String language,
-      );
+    @Path("movieId") String movieId,
+    @Query("api_key") String apiKey,
+    @Query("language") String language,
+  );
 
   //get videos
   @GET("movie/{movieId}/videos")
   @Headers(<String, dynamic>{"content-type": "application/json"})
   @FormUrlEncoded()
   Future<VideosModel> getVideos(
-      @Path("movieId") String movieId,
-      @Query("api_key") String apiKey,
-      @Query("language") String language,
-      );
+    @Path("movieId") String movieId,
+    @Query("api_key") String apiKey,
+    @Query("language") String language,
+  );
 
   //get similar
   @GET("movie/{movieId}/similar")
   @Headers(<String, dynamic>{"content-type": "application/json"})
   @FormUrlEncoded()
   Future<NowPlayingModel> getSimilar(
-      @Path("movieId") String movieId,
-      @Query("api_key") String apiKey,
-      @Query("language") String language,
-      @Query("page") String page,
-      );
+    @Path("movieId") String movieId,
+    @Query("api_key") String apiKey,
+    @Query("language") String language,
+    @Query("page") String page,
+  );
 
-
+  //get Trending
+  @GET("trending/{type}/{timeWindow}")
+  @Headers(<String, dynamic>{"content-type": "application/json"})
+  @FormUrlEncoded()
+  Future<NowPlayingModel> getTrending(
+      @Path("type") String type,
+      @Path("timeWindow") String timeWindow,
+      @Query("api_key") String apiKey);
 }
